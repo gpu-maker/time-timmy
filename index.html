@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Timmy: Basement Paradox</title>
+
+<style>
+body {
+    background: black;
+    color: #eaeaea;
+    font-family: monospace;
+    text-align: center;
+    padding: 30px;
+    overflow-x: hidden;
+}
+
+#game {
+    max-width: 800px;
+    margin: auto;
+}
+
+button {
+    display: block;
+    margin: 10px auto;
+    padding: 10px 20px;
+    background: #111;
+    color: white;
+    border: 1px solid #555;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #222;
+}
+
+.ending {
+    color: red;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.glitch {
+    animation: glitch 0.15s infinite;
+}
+
+@keyframes glitch {
+    0% { transform: translate(2px, -2px); }
+    25% { transform: translate(-2px, 2px); }
+    50% { transform: translate(2px, 2px); }
+    75% { transform: translate(-2px, -2px); }
+    100% { transform: translate(0,0); }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+    <h1>🌀 TIMMY: BASEMENT PARADOX</h1>
+    <div id="text"></div>
+    <div id="choices"></div>
+</div>
+
+<script>
+const textDiv = document.getElementById("text");
+const choicesDiv = document.getElementById("choices");
+
+let typingSpeed = 20;
+
+// TYPEWRITER EFFECT
+function typeText(text, callback) {
+    textDiv.innerHTML = "";
+    let i = 0;
+
+    function type() {
+        if (i < text.length) {
+            textDiv.innerHTML += text[i];
+            i++;
+            setTimeout(type, typingSpeed);
+        } else {
+            callback();
+        }
+    }
+
+    type();
+}
+
+// GLITCH EFFECT
+function glitchEffect(duration = 1000) {
+    document.body.classList.add("glitch");
+    setTimeout(() => {
+        document.body.classList.remove("glitch");
+    }, duration);
+}
+
+// RANDOM SECRET TRIGGER
+function randomGlitchChance() {
+    if (Math.random() < 0.25) {
+        glitchEffect(500);
+    }
+}
+
+// SHOW SCENE
+function showScene(scene) {
+    const data = scenes[scene];
+
+    choicesDiv.innerHTML = "";
+
+    randomGlitchChance();
+
+    if (data.glitch) glitchEffect(1200);
+
+    typeText(data.text, () => {
+        if (data.ending) {
+            const btn = document.createElement("button");
+            btn.innerText = "Restart";
+            btn.onclick = () => showScene("start");
+            choicesDiv.appendChild(btn);
+            return;
+        }
+
+        data.choices.forEach(choice => {
+            const btn = document.createElement("button");
+            btn.innerText = choice.text;
+            btn.onclick = () => showScene(choice.next);
+            choicesDiv.appendChild(btn);
+        });
+    });
+}
+
+// GAME DATA
+const scenes = {
+
+start: {
+    text: "Timmy lives in a McDonald's basement.\n\nHe doesn't remember anything before it.\n\nBut something feels wrong.",
+    choices: [
+        { text: "Build the machine", next: "montage" },
+        { text: "Ask about poster", next: "ask" },
+        { text: "Search basement", next: "memory" }
+    ]
+},
+
+ask: {
+    text: "\"You already asked that.\"\n\nWhy does that feel true?",
+    choices: [
+        { text: "Push harder", next: "ending1" },
+        { text: "Back off", next: "montage" }
+    ]
+},
+
+memory: {
+    text: "You find a hatch.\n\nYou feel like you've opened it before.",
+    choices: [
+        { text: "Open it", next: "basementEarly" },
+        { text: "Ignore it", next: "montage" }
+    ]
+},
+
+montage: {
+    text: "Music BLASTS.\n\nSCREAMING outside.\n\nTIME MACHINE COMPLETE.",
+    glitch: true,
+    choices: [
+        { text: "3 years back", next: "past" },
+        { text: "Further", next: "deepPast" },
+        { text: "Let him choose", next: "ending2" }
+    ]
+},
+
+past: {
+    text: "You watch someone get beaten.\n\nDragged.\n\nA hatch nearby.",
+    choices: [
+        { text: "Break hatch", next: "oldTimmy" },
+        { text: "Follow him", next: "loopEnding" }
+    ]
+},
+
+basementEarly: {
+    text: "You fall.\n\nYou see yourself.\n\nEverything goes black.",
+    glitch: true,
+    choices: [
+        { text: "Continue", next: "oldTimmy" }
+    ]
+},
+
+oldTimmy: {
+    text: "You wake tied to a chair.\n\n\"You won’t remember this.\"",
+    glitch: true,
+    choices: [
+        { text: "Remember", next: "truth" },
+        { text: "Pretend", next: "wanted" },
+        { text: "Attack", next: "ending4" }
+    ]
+},
+
+wanted: {
+    text: "FBI WANTED.\n\nIt's your face.",
+    choices: [
+        { text: "Stay quiet", next: "ending6" },
+        { text: "Reveal truth", next: "ending4" }
+    ]
+},
+
+truth: {
+    text: "You broke time.\n\nYou ARE the weird guy.\n\nEvery loop makes another you.",
+    glitch: true,
+    choices: [
+        { text: "Break loop", next: "trueEnding" },
+        { text: "Accept it", next: "ending6" },
+        { text: "Stay in loop", next: "secretLoop" }
+    ]
+},
+
+deepPast: {
+    text: "No McDonald's.\n\nOnly basement.",
+    choices: [
+        { text: "Enter", next: "truth" },
+        { text: "Leave", next: "ending5" }
+    ]
+},
+
+// CORE ENDINGS
+ending1: { text: "<div class='ending'>ENDING 1: YOU ASKED</div>", ending: true },
+ending2: { text: "<div class='ending'>ENDING 2: WRONG TIME</div>", ending: true },
+ending4: { text: "<div class='ending'>ENDING 3: YOU BECOME HIM</div>", ending: true },
+ending5: { text: "<div class='ending'>ENDING 4: INEVITABLE</div>", ending: true },
+ending6: { text: "<div class='ending'>ENDING 5: YOU ARE THE WEIRD GUY</div>", ending: true },
+loopEnding: { text: "<div class='ending'>ENDING 6: LOOPED FOREVER</div>", ending: true },
+
+trueEnding: {
+    text: "<div class='ending'>TRUE ENDING: LOOP BROKEN...?</div>",
+    glitch: true,
+    ending: true
+},
+
+// SECRET ENDINGS
+secretLoop: {
+    text: "<div class='ending'>SECRET ENDING: YOU WATCH FOREVER</div>",
+    glitch: true,
+    ending: true
+},
+
+glitchDeath: {
+    text: "<div class='ending'>SECRET: REALITY CORRUPTED</div>",
+    glitch: true,
+    ending: true
+},
+
+mirror: {
+    text: "<div class='ending'>SECRET: YOU WERE ALWAYS BOTH</div>",
+    ending: true
+},
+
+vanish: {
+    text: "<div class='ending'>SECRET: ERASED FROM TIME</div>",
+    ending: true
+}
+
+};
+
+// RANDOM SECRET PATH INJECTION
+setInterval(() => {
+    if (Math.random() < 0.1) {
+        showScene("glitchDeath");
+    }
+}, 15000);
+
+// START GAME
+showScene("start");
+</script>
+
+</body>
+</html>
